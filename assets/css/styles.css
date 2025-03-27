@@ -1,3 +1,8 @@
-/* .form-check-input:checked {
-    border: 2px solid #ff0000 !important;
-} */
+body{
+    padding-top: 60px;
+}
+.navbar{
+    position: fixed;
+    width: 100%;
+    top: 0;
+}

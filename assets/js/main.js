@@ -1,4 +1,5 @@
 let questionNumber = 1;
+let questions=[];
 class User {
     constructor(name, diffculty) {
         this.name = name;
@@ -68,27 +69,16 @@ function GenerateQuestion(diffculty) {
     if (diffculty === 'Easy') {
         num1 = getRandomInt(2, 14);
         num2 = getRandomInt(2, 14);
-        // while (num2===num1) {
-        //     num2 = getRandomInt(2, 14);
-        // }
         operand = getRandomElement(operators, 0, 1);
     } else if (diffculty === 'Medium') {
         num1 = getRandomInt(5, 18);
         num2 = getRandomInt(5, 18);
-        // while (num2===num1) {
-        //     num2 = getRandomInt(5, 18);
-        // }
         operand = getRandomElement(operators, 0, 2);
     } else {
         num1 = getRandomInt(7, 25);
         num2 = getRandomInt(7, 25);
-        // while (num2===num1) {
-        //     num2 = getRandomInt(7, 25);
-        // }
         operand = getRandomElement(operators, 0, 3);
     }
-
-    console.log(num1,num2);
 
     if (num1>num2) {
         max=num1;
@@ -97,11 +87,6 @@ function GenerateQuestion(diffculty) {
         max=num2;
         min=num1;
     }
-    // let temp = num2;
-    // num1 = Math.max(num1, temp);
-    // num2 = Math.min(num1, temp);
-
-    console.log(min,max);
 
     if (operand === '/') {
         max = max * min;
@@ -115,7 +100,6 @@ function GenerateQuestion(diffculty) {
             options.add(num);
         }
     }
-    
     return { max, min, operand, correctAnswer, options:[...options]};
 }
 
@@ -167,6 +151,14 @@ function StartQuiz() {
         let selectedDiv = selectedOption.closest('.border');
         let correctOption = document.querySelector(`input[name="answer"][value="${correctAnswer}"]`);
         let correctDiv = correctOption.closest('.border');
+
+        questions.push({
+            max:question.max,
+            operand:question.operand,
+            min:question.min,
+            ans:selectedValue,
+            correct:question.correctAnswer
+        });
 
         if (selectedValue===correctAnswer) {
             selectedOption.classList.add('bg-success','border','border-success');
@@ -223,14 +215,65 @@ function RenderScore(){
                     <p class="fw-bold text-center text-danger h3 m-0">${10-user.score}</p>
                 </div>
             </div>
-            <div class="d-flex justify-content-center mt-4">
+            <div class="d-flex justify-content-around gap-3 mt-4">
                 <button class="btn btn-primary retake w-50">Retake Quiz</button>
+                <button class="btn btn-secondary results w-50">View Detailed Result</button>
             </div>
         </div>
     `;
     document.querySelector('.retake').addEventListener('click',()=>{
         questionNumber=1;
         user.score=0;
+        setTimeout(RenderHome,1000);
+    });
+    document.querySelector('.results').addEventListener('click',()=>{
+        setTimeout(RenderAnswers,1000);
+    });
+}
+
+function RenderAnswers(){
+    document.querySelector('body').innerHTML=`
+        <div class="container-fluid p-0">
+            <nav class="navbar navbar-expand-sm navbar-light bg-white border">
+                <span class="navbar-brand fw-bold ms-3"><i class='bx bx-math'></i> MathStorm</span>
+            </nav>
+        </div>
+    `;
+    questions.forEach((question,index)=>{
+        document.querySelector('body').innerHTML+=`
+            <div class="container">
+                <div class="border rounded shadow p-3 my-4">
+                    <p class="fw-bold text-primary m-0">Question ${index+1}/10</p>
+                    <h3 class="text-center fw-bold mb-3">${question.max} ${question.operand} ${question.min} = ?</h3>
+                    <div class="d-flex justify-content-around mb-3">
+                    ${ (question.ans===question.correct)
+                        ?`<p class="fw-bold text-success m-0">Your Answer: ${question.ans}</p>`
+                        :`<p class="fw-bold text-danger m-0">Your Answer: ${question.ans}</p>`
+                    }
+                        <p class="fw-bold text-success m-0">Correct Answer: ${question.correct}</p>
+                    </div>
+                    <div class="d-flex justify-content-center gap-1">
+                        ${ (question.ans===question.correct)
+                            ? `<i class='bx bxs-check-circle text-success h3'></i>
+                            <h3 class="fw-bold text-center text-success">Correct</h3>`
+                            :`<i class='bx bxs-x-circle text-danger h3'></i>
+                            <h3 class="fw-bold text-center text-danger">Incorrect</h3>`
+                        }
+                    </div>
+                </div>
+            </div>
+        `;
+    });
+    document.querySelector('body').innerHTML+=`
+        <div class="d-flex justify-content-center mb-5">
+            <button class="btn btn-primary retake">Retake Quiz</button>
+        </div>
+    `;
+
+    document.querySelector('.retake').addEventListener('click',()=>{
+        questionNumber=1;
+        user.score=0;
+        questions=[];
         setTimeout(RenderHome,1000);
     });
 }
