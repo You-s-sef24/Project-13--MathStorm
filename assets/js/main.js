@@ -1,9 +1,9 @@
 let questionNumber = 1;
 let questions=[];
 class User {
-    constructor(name, diffculty) {
+    constructor(name, difficulty) {
         this.name = name;
-        this.diffculty = diffculty;
+        this.difficulty = difficulty;
         this.score=0;
     }
 }
@@ -27,8 +27,8 @@ function RenderHome() {
                     <input type="text" class="form-control" id="name" required>
                 </div>
                 <div class="w-50 mb-3">
-                    <label class="form-label" for="diffculty">Select Difficulty</label>
-                    <select name="diffculty" class="form-select" id="diffculty">
+                    <label class="form-label" for="difficulty">Select Difficulty</label>
+                    <select name="difficulty" class="form-select" id="difficulty">
                         <option value="Easy">Easy</option>
                         <option value="Medium">Medium</option>
                         <option value="Hard">Hard</option>
@@ -43,10 +43,11 @@ function RenderHome() {
 
     document.querySelector('.start').addEventListener('click', () => {
         let name=document.getElementById("name").value;
-        let diff=document.getElementById("diffculty").value;
+        let diff=document.getElementById("difficulty").value;
+        questions = [];
         if(name!=''){
             user = new User(name, diff);
-            setTimeout(StartQuiz(user.diffculty),2000);
+            setTimeout(()=>StartQuiz(user.difficulty),2000);
         }else{
             document.getElementById("name").classList.add('is-invalid');
         }
@@ -63,14 +64,14 @@ function getRandomElement(arr, minIndex, maxIndex) {
     return arr[randomIndex];
 }
 
-function GenerateQuestion(diffculty) {
+function GenerateQuestion(difficulty) {
     let num1, num2, operand,correctAnswer,max,min;
     let operators = ['+', '-', '*', '/'];
-    if (diffculty === 'Easy') {
+    if (difficulty === 'Easy') {
         num1 = getRandomInt(2, 14);
         num2 = getRandomInt(2, 14);
         operand = getRandomElement(operators, 0, 1);
-    } else if (diffculty === 'Medium') {
+    } else if (difficulty === 'Medium') {
         num1 = getRandomInt(5, 18);
         num2 = getRandomInt(5, 18);
         operand = getRandomElement(operators, 0, 2);
@@ -89,7 +90,7 @@ function GenerateQuestion(diffculty) {
     }
 
     if (operand === '/') {
-        max = max * min;
+        max = min * getRandomInt(2, 10);
     }
     correctAnswer=eval(`${max}${operand}${min}`);
 
@@ -104,7 +105,7 @@ function GenerateQuestion(diffculty) {
 }
 
 function StartQuiz() {
-    let question = GenerateQuestion(user.diffculty);
+    let question = GenerateQuestion(user.difficulty);
     let correctAnswer=question.correctAnswer;
     let answers=question.options;
     answers.sort((a, b) => a - b);
@@ -196,7 +197,7 @@ function RenderScore(){
                 <div class="progress">
                     <div class="progress-bar" role="progressbar" style="width: ${user.score*10}%;"> </div>
                 </div>
-                <label class="fw-bold text-primary mb-1">${user.diffculty}</label>
+                <label class="fw-bold text-primary mb-1">${user.difficulty}</label>
             </div>
             <p class="text-center text-primary mt-3">You answered ${user.score} out of 10 questions correctly</p>
             <div class="d-flex justify-content-center align-items-center mt-4 gap-3">
@@ -223,6 +224,7 @@ function RenderScore(){
     `;
     document.querySelector('.retake').addEventListener('click',()=>{
         questionNumber=1;
+        questions = [];
         user.score=0;
         setTimeout(RenderHome,1000);
     });
