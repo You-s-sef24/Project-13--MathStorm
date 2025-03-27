@@ -63,29 +63,50 @@ function getRandomElement(arr, minIndex, maxIndex) {
 }
 
 function GenerateQuestion(diffculty) {
-    let num1, num2, operand,correctAnswer;
+    let num1, num2, operand,correctAnswer,max,min;
     let operators = ['+', '-', '*', '/'];
     if (diffculty === 'Easy') {
         num1 = getRandomInt(2, 14);
         num2 = getRandomInt(2, 14);
+        // while (num2===num1) {
+        //     num2 = getRandomInt(2, 14);
+        // }
         operand = getRandomElement(operators, 0, 1);
     } else if (diffculty === 'Medium') {
         num1 = getRandomInt(5, 18);
         num2 = getRandomInt(5, 18);
+        // while (num2===num1) {
+        //     num2 = getRandomInt(5, 18);
+        // }
         operand = getRandomElement(operators, 0, 2);
     } else {
         num1 = getRandomInt(7, 25);
         num2 = getRandomInt(7, 25);
+        // while (num2===num1) {
+        //     num2 = getRandomInt(7, 25);
+        // }
         operand = getRandomElement(operators, 0, 3);
     }
 
-    let temp = num2;
-    num1 = Math.max(num1, temp);
-    num2 = Math.min(num1, temp);
-    if (operand === '/') {
-        num1 = num1 * num2;
+    console.log(num1,num2);
+
+    if (num1>num2) {
+        max=num1;
+        min=num2;
+    }else{
+        max=num2;
+        min=num1;
     }
-    correctAnswer=eval(`${num1}${operand}${num2}`);
+    // let temp = num2;
+    // num1 = Math.max(num1, temp);
+    // num2 = Math.min(num1, temp);
+
+    console.log(min,max);
+
+    if (operand === '/') {
+        max = max * min;
+    }
+    correctAnswer=eval(`${max}${operand}${min}`);
 
     let options=new Set([correctAnswer]);
     while(options.size<4){
@@ -95,7 +116,7 @@ function GenerateQuestion(diffculty) {
         }
     }
     
-    return { num1, num2, operand, correctAnswer, options:[...options]};
+    return { max, min, operand, correctAnswer, options:[...options]};
 }
 
 function StartQuiz() {
@@ -113,7 +134,7 @@ function StartQuiz() {
                 </div>
             </div>
             <div class="question mt-4">
-                <h3 class="fw-bold text-center mb-4">${question.num1} ${question.operand} ${question.num2} = ?</h3>
+                <h3 class="fw-bold text-center mb-4">${question.max} ${question.operand} ${question.min} = ?</h3>
                 <div class="answers mb-4">
                     ${
                         answers.map((ans,index)=>`
@@ -151,6 +172,7 @@ function StartQuiz() {
             selectedOption.classList.add('bg-success','border','border-success');
             selectedDiv.classList.add('bg-success','text-white');
             user.score++;
+            console.log(user.score);
         }else{
             selectedOption.classList.add('bg-danger','border','border-danger');
             selectedDiv.classList.add('bg-danger','text-white');
@@ -158,17 +180,17 @@ function StartQuiz() {
             correctDiv.classList.add('bg-success','text-white');
         }
         questionNumber++;
-        if(questionNumber<10){
+        if(questionNumber<=10){
             setTimeout(StartQuiz,1500);
+            document.querySelector('.stats').innerHTML=`
+                <label class="fw-bold text-muted mb-1">Question ${questionNumber}/10</label>
+                <div class="progress">
+                    <div class="progress-bar" role="progressbar" style="width: ${questionNumber * 10}%;"> </div>
+                </div>
+            `;
         }else{
             setTimeout(RenderScore,1500);
         }
-        document.querySelector('.stats').innerHTML=`
-            <label class="fw-bold text-muted mb-1">Question ${questionNumber}/10</label>
-            <div class="progress">
-                <div class="progress-bar" role="progressbar" style="width: ${questionNumber * 10}%;"> </div>
-            </div>
-        `;
     });
 }
 
